@@ -1,0 +1,56 @@
+Jenkins Advance System Migration:
+
+Jenkins migration from Ubuntu 16.04.7 LTS (Xenial Xerus) server to Ubuntu 22.04.2 LTS server
+
+Jenkins Version updated from 2.303.3 to 2.387.2
+
+Steps:
+
+Action on New server
+1.	Create new VM server on vSphere
+2.	Login as a root user to the new server using SSH
+3.	Install Jenkins on this server, Reference link 
+4.	After installation
+5.	Stop Jenkins service
+$ systemctl stop jenkins.service
+6.	Change the ownership of the Jenkins home directory
+$ chown -R user /var/lib/jenkins/
+Note: change the user with your username
+$ ls -la /var/lib/jenkins/
+
+Action on old server
+7.	Make a snapshot of the old server on vSphere client
+8.	Login as a root user to the new server using SSH
+9.	Stop Jenkins service
+$ systemctl stop jenkins.service
+10.	Change the ownership of the Jenkins home directory
+$ chown -R user /var/lib/jenkins/
+Note: change the user with your username
+$ ls -la /var/lib/jenkins/
+
+11.	Now your user is the owner of this repository
+12.	Execute the following command to migrate all the data from old server to new server
+$ rsync -r /var/lib/jenkins/ --exclude 'workspace' user@<new-server>:/var/lib/jenkins/
+13.	Sds
+
+Enable the LDAP server access
+14.	Login to new Jenkins’s server
+15.	Click on Manage Jenkins  Configure Global Security 
+16.	Here you need a username and password. Please contact to System administrator or write a service ticket allow LDAP access to Jenkins’s server.
+
+Enable Gitlab server access to Jenkins’s server
+17.	Login as a root user to the new server using SSH
+18.	Create SSH key using following command
+$ ssh-keygen -b 2048 -t rsa
+
+19.	Copy id_rsa  id_rsa.pub files to from /root/.ssh to /home/ARS.DE/jenkins/.ssh
+Note: it is most likely that there will not be a jenkins’s user folder so create it as mentioned in about path.
+20.	Copy the id_ras.pub key to Gitlab server
+21.	Here you need an administrator access to copy SSH key on GitLab server.
+22.	Login to GitLab server  Edit profile  Add SSH Keys
+23.	This will provide the GitLab repository access to Jenkins user
+24.	Start the Jenkins service
+25.	Here, you should be able to login using LDAP credentials.
+
+Download and install SSL certificate
+26.	After this you need to download and install the self-sign ssl certificate for Gitlab and Artifactory
