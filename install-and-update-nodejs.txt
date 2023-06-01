@@ -1,0 +1,25 @@
+# Install nodejs and npm on ubuntu 22.04 LTS
+sudo apt update
+sudo apt install -y nodejs npm
+node --version
+v12.22.9
+npm --version
+8.5.1
+
+# Installation succesfull
+
+# Update nodejs version
+$ node --version
+v12.22.9
+$ npm --version
+8.5.1
+
+$ sudo npm install -g n
+
+$ sudo n lts
+
+# Now close the terminal and reopen new. If SSH exit and login again.
+$ node --version
+v18.16.0
+$ npm --version
+9.5.1
