@@ -65,8 +65,7 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws-cred', region: 'eu-central-1') {
                     sh '''
-                        aws s3 cp ${DIST_ARCHIVE}.zip s3://${S3_BUCKET_NAME}/${DIST_ARCHIVE}.zip
-                        aws deploy create-deployment --application-name Angular --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name angular-deployment-group --s3-location bucket=${S3_BUCKET_NAME},bundleType=zip,key=${DIST_ARCHIVE}.zip
+                        aws s3 cp dist/raumbuchung-app/ s3://raumbuchung-frontend --recursive
                     '''
                 }
             }            
