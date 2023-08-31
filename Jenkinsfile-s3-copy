@@ -1,0 +1,87 @@
+pipeline {
+    agent none
+
+    tools { nodejs "node-18.17.1"}
+
+    environment {
+        S3_BUCKET_NAME = 'angular-app'
+        DIST_ARCHIVE = 'angular-dist'
+    }
+
+    stages {
+        stage('Checkout SCM') {
+            agent any
+
+            steps {
+				checkout scm
+			}
+        }
+
+        stage('NPM Install') {
+            agent any
+
+            steps {
+                withCredentials([file(credentialsId: 'npmrc-file', variable: 'NPMRC_FILE')]) {
+                    script {
+                        sh '''
+                            cp $NPMRC_FILE ./.npmrc
+                            npm install --verbose -d             
+                        '''
+                    }
+                }
+            }           
+        }
+
+        /* stage('NPM Test') {
+            steps {
+                sh 'cd raumbuchung-app'
+                sh 'npm run test'
+            }
+        } */
+
+        stage('NPM Build') {
+            agent any
+
+            steps {
+                script {
+                    sh '''
+                        npm run build
+                        rm .npmrc
+                    '''
+                }
+            }
+        }
+
+        stage('Archive') {
+            agent any
+            steps {
+                sh "cd /dist && zip -r ../${DIST_ARCHIVE}.zip . && cd .."
+                archiveArtifacts artifacts: "${DIST_ARCHIVE}.zip", allowEmptyArchive: true
+            }
+        }
+
+        stage('Deploy to S3') {
+            agent any
+            steps {
+                withAWS(credentials: 'aws-cred', region: 'eu-central-1') {
+                    sh '''
+                        aws s3 cp ${DIST_ARCHIVE}.zip s3://${S3_BUCKET_NAME}/${DIST_ARCHIVE}.zip
+                        aws deploy create-deployment --application-name Angular --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name angular-deployment-group --s3-location bucket=${S3_BUCKET_NAME},bundleType=zip,key=${DIST_ARCHIVE}.zip
+                    '''
+                }
+            }            
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline is successfull.'
+        }
+        failure {
+            echo 'Pipeline is failed.'
+        }
+        cleanup {
+            sh 'rm .npmrc'
+        }
+    }
+}
