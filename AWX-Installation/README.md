@@ -68,7 +68,7 @@ http://<node-ip>:<node-port>/
 Login:
 - Username: admin
 - Password: (from step 4)
-
+![alt text](image.png)
 ## 6. Cleanup (Optional)
 ```sh
 kubectl delete -f awx.yaml
