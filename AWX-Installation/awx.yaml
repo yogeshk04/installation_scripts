@@ -1,0 +1,13 @@
+apiVersion: awx.ansible.com/v1beta1
+kind: AWX
+metadata:
+  name: awx
+  namespace: ns-awx
+spec:
+  service_type: nodeport  
+  postgres_storage_class: sc-local-storage
+  projects_persistence: true  
+  # Uncomment to enable ingress
+  # ingress_type: ingress
+  # hostname: awx.example.com
+  # admin_user: admin
